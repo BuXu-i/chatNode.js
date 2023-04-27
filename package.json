@@ -1,0 +1,19 @@
+{
+    "dependencies": {
+        "@escook/express-joi": "^1.1.1",
+        "@hapi/joi": "^17.1.0",
+        "async": "^3.2.4",
+        "bcryptjs": "^2.4.3",
+        "body-parser": "^1.20.0",
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "express-jwt": "^5.3.3",
+        "joi": "^17.4.0",
+        "jsonwebtoken": "^8.5.1",
+        "multiparty": "^4.2.3",
+        "mysql": "^2.18.1",
+        "server-sent-events": "^1.0.1",
+        "socket.io": "^4.5.2",
+        "sse": "^0.0.8"
+    }
+}
