@@ -10,8 +10,6 @@ const joi = require("joi");
 // router.post('/reguser', expressJoi(reg_login_schema), userHandler.regUser)
 
 const id = joi.string().required(/^[0-9]{8}$/);
-//学校
-const school = joi.string().required();
 //其他信息
 // const other = joi;
 //姓名  字符串                     最小  最大
@@ -35,7 +33,6 @@ const telephone = joi.required(
 // const headimg = joi; schema
 exports.reguser = {
     body: {
-        school,
         name,
         nickname,
         password,

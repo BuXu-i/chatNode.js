@@ -5,41 +5,41 @@ const bcrypt = require("bcryptjs"); //引入加密 密码包
 const config = require("../config"); //导入token加密字符串
 const jwt = require("jsonwebtoken"); //加密token字符串
 
-const sql_query = `select * from user where nickname=? or telephone=? or studentid=?`; //查询语句
+const sql_query = `select * from user where nickname=? or telephone=?`; //查询语句
 const sql_i_reguser = "insert into user set ?"; //插入语句
 const sql_count = "select  count(id) from user"; //查询用户表中总共有多少条数据 依据生成id
 const { schoo_id } = require("../state/index"); //学校id 生成 依据
 const sql_login = "select id , password,nickname,headimg from user where id=?"; //登录sql
 // const sqlfied = "select * from ev_users where nickname=?"; //查询语句
+
+//             系统分配     学校        其他信息    姓名
+// 注册用户 提供  id        school      other     name
+//
+//  昵称         密码       电话          学号      性别(默认0)
+//nickname   password    telephone     studentid  sex
+//
+// 头像base64(默认null)    账户是否删除(默认0)
+//    headimg                is_delete
+//
+// 用户表\nid 系统分配 作为账户\nid 昵称 电话唯一 且非空
 //sex 1 表示男
 function opid(count, count_school, sex = "1") {
 	console.log("生成id函数");
-	return (
-		"0".repeat(3 - count_school.toString().length) +
-		count_school +
-		"0".repeat(4 - count.toString().length) +
-		count +
-		sex
-	);
+	return "0".repeat(3 - count_school.toString().length) + count_school + "0".repeat(4 - count.toString().length) + count + sex;
 }
 //必须 传入参数 只有其他信息不用传入   有默认值的不需要传入
 exports.reguser = (req, res) => {
 	console.log("注册语句");
 	console.log(req.body);
 	//查询昵称,学号,电话，是否有重复 有的话!!!  查看是否被删除(暂时不提供账户销毁)
-	let {
-		school,
-		name,
-		nickname,
-		password,
-		telephone,
-		// studentid,
-		sex = 1,
-	} = req.body;
-	console.log("结构 " + nickname + " " + telephone + " " + " ok");
+	let { school, nickname, password, telephone, sex = 1 } = req.body;
+	if (!school) {
+		school = "未知";
+	}
+	console.log("结构 " + nickname + " " + telephone + " ok");
 	db.query(
 		sql_query,
-		[nickname, telephone], //昵称 电话  需要唯一
+		[nickname, telephone], //昵称 电话 学号 需要唯一
 		function (err, results) {
 			console.log("查询数据库中");
 			if (err) {
@@ -66,29 +66,23 @@ exports.reguser = (req, res) => {
 							password = bcrypt.hashSync(password, 10);
 							count = result[0]["count(id)"] + 1;
 							//生成用户唯一id表示
-							if ((school = "")) {
-								//根据传入的学校生成id中一个标识  传入未kong时  id为x
-								count_school = "x";
-							} else {
-								count_school = schoo_id[school];
-							}
+							count_school = schoo_id(school);
 							console.log(count_school);
 							if (count_school > 0) {
 								console.log("学校序号生成成功");
 								//注册 功能
 								id = opid(count, count_school, sex);
 								console.log(id);
+								if (school == "未知") school = "";
 								db.query(
 									//生成id   password 加密
 									sql_i_reguser,
 									{
 										id,
 										school,
-										name,
 										nickname,
 										password,
 										telephone,
-										// studentid,//学号不要
 										sex,
 									},
 									(err, results) => {
@@ -99,13 +93,14 @@ exports.reguser = (req, res) => {
 											return res.ret(err);
 										} else {
 											console.log("用户注册成功");
-											return res.ret(results, true);
+											return res.ret({ id }, true);
 										}
 									}
 								);
 							} else {
 								console.log("依据学校生成序号失败 " + school);
-								return res.ret("依据学校生成序号失败 " + school);
+								res.ret("依据学校生成序号失败 " + school);
+								return;
 							}
 						}
 					});
@@ -153,7 +148,6 @@ exports.login = (req, res) => {
 				id: id + "",
 				nickname: results[0].nickname,
 				headimg: results[0].headimg,
-				// token: tokenStr,
 				token: "Bearer " + tokenStr,
 			});
 		} else {
