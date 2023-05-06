@@ -2,11 +2,9 @@
 //导入sql db
 const db = require("../db/index");
 //查找共同好友
-const sql_ididFriend =
-	"select * from friend where id=(select id from friend where id_=? and is_delete=0) and is_delete=0";
+const sql_ididFriend = "select * from friend where id=(select id from friend where id_=? and is_delete=0) and is_delete=0";
 //是否为好友
-const sql_idisid =
-	"select count(*) as count from friend where id=? and id_=? and is_delete=1 or (id_=? and id=? and is_delete=1)";
+const sql_idisid = "select count(*) as count from friend where id=? and id_=? and is_delete=1 or (id_=? and id=? and is_delete=1)";
 //成为好友  //更改sql 需要检查 token凭证
 const sql_idid = "insert into friend set ?";
 //以下 是 添加好友   要修改sql 故检查token
@@ -29,11 +27,12 @@ exports.idid = function (req, rse) {
 			sql_idisid,
 			[id, id_, id, id_], //甲方id 和 乙方id
 			(err, result) => {
+        console.log('查询结果');
+        console.log(result);
 				console.log(result[0].count);
 				if (err) return rse.ret(err);
 				if (result[0].count > 0) {
-					const sql_deleteId =
-						"update friend set is_delete=0 where (id=? and id_=?) or (id=? and id_=?) and is_delete=1";
+					const sql_deleteId = "update friend set is_delete=0 where (id=? and id_=?) or (id=? and id_=?) and is_delete=1";
 					db.query(sql_deleteId, [id, id_, id_, id], (err, result) => {
 						console.log(result);
 						if (result.changedRows == 1) rse.urn({ message: "添加好友成功" });
@@ -42,8 +41,9 @@ exports.idid = function (req, rse) {
 					});
 					return;
 				}
-				db.query(sql_idid, { id, id_ }, (err, result) => {
+				db.query(sql_idid, { id, id_, is_delete: "0" }, (err, result) => {
 					// return rse.ret(" 暂停", 1);
+          console.log('断开连接');
 					if (err) return rse.ret(err);
 					if (result?.length > 0) {
 						return rse.ret("添加成功", true);
@@ -59,8 +59,7 @@ exports.idid = function (req, rse) {
 };
 //查询好友列表 返回的是id列表
 //获取好友列表
-const sql_idList =
-	"select * from friend where ( id=? or id_=? ) and is_delete=0";
+const sql_idList = "select * from friend where ( id=? or id_=? ) and is_delete=0";
 exports.idList = function (req, rse) {
 	console.log("获取好友列表");
 	console.log(req.body);
@@ -106,8 +105,7 @@ exports.idList = function (req, rse) {
 const { querySQL } = require("../db_fun/release.js");
 let result = null; //暂存查询sql信息
 //删除好友 验证token
-const sql_deleteId =
-	"update friend set is_delete=1 where (id=? and id_=?) or (id=? and id_=?) and is_delete=0";
+const sql_deleteId = "update friend set is_delete=1 where (id=? and id_=?) or (id=? and id_=?) and is_delete=0";
 exports.deleteId = async (req, rse) => {
 	let id_ = req.body.id + "";
 	let id = req.user.id + "";

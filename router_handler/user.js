@@ -9,7 +9,7 @@ const sql_query = `select * from user where nickname=? or telephone=?`; //查询
 const sql_i_reguser = "insert into user set ?"; //插入语句
 const sql_count = "select  count(id) from user"; //查询用户表中总共有多少条数据 依据生成id
 const { schoo_id } = require("../state/index"); //学校id 生成 依据
-const sql_login = "select id , password,nickname,headimg from user where id=?"; //登录sql
+const sql_login = "select * from user where id=?"; //登录sql
 // const sqlfied = "select * from ev_users where nickname=?"; //查询语句
 
 //             系统分配     学校        其他信息    姓名
