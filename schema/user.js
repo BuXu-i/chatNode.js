@@ -10,41 +10,42 @@ const joi = require("joi");
 // router.post('/reguser', expressJoi(reg_login_schema), userHandler.regUser)
 
 const id = joi.string().required(/^[0-9]{8}$/);
+//学校
+// const school = joi.string();
 //其他信息
 // const other = joi;
 //姓名  字符串                     最小  最大
-const name = joi.string().min(1).max(5);
+// const name = joi.string().min(1).max(5);
 //昵称
 const nickname = joi.string().required();
 //字符串      正则表达式              不允许重复提交
 //密码
 const password = joi
-    .string()
-    .pattern(/^.{7,12}$/)
-    .alphanum()
-    .required();
+	.string()
+	.pattern(/^.{7,12}$/)
+	.alphanum()
+	.required();
 // 电话
-const telephone = joi.required(
-    /^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$/
-);
+const telephone = joi.required(/^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$/);
 // 学号
 // const studentid = joi.required(/^\d{11}$/);
 //头像
 // const headimg = joi; schema
 exports.reguser = {
-    body: {
-        name,
-        nickname,
-        password,
-        telephone,
-        // studentid,
-        // headimg,
-    },
+	body: {
+		// school,  可以为空故 在处理时判断
+		// name,
+		nickname,
+		password,
+		telephone,
+		// studentid,
+		// headimg,
+	},
 };
 
 exports.login = {
-    body: {
-        id: id, //账户
-        password, //密码
-    },
+	body: {
+		id: id, //账户
+		password, //密码
+	},
 };
